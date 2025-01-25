@@ -77,8 +77,16 @@ async function setUserPin(userId, pin) {
             throw new Error('User not found');
         }
         
+        // Store PIN as string to ensure consistent format
         await update(userRef, { pin: cleanPin });
         console.log('PIN set successfully for user:', userId);
+        
+        // Verify the PIN was set correctly
+        const verifySnapshot = await get(userRef);
+        if (!verifySnapshot.exists() || verifySnapshot.val().pin !== cleanPin) {
+            throw new Error('PIN verification failed after setting');
+        }
+        
         return true;
     } catch (err) {
         console.error('Error setting PIN:', err);
@@ -89,25 +97,41 @@ async function setUserPin(userId, pin) {
 // Verify user PIN
 async function verifyPin(userId, pin) {
     try {
+        if (!userId || !pin) {
+            console.log('Missing userId or PIN');
+            return false;
+        }
+
         const userRef = ref(rtdb, `users/${userId}`);
         const snapshot = await get(userRef);
         
-        if (!snapshot.exists() || !snapshot.val().pin) {
-            console.log('No PIN set for user');
+        if (!snapshot.exists()) {
+            console.log('User not found:', userId);
             return false;
         }
         
         const userData = snapshot.val();
-        console.log('Verifying PIN for user:', userId);
-        console.log('Stored PIN:', userData.pin);
-        console.log('Provided PIN:', pin);
+        if (!userData.pin) {
+            console.log('No PIN set for user');
+            return false;
+        }
         
-        const isMatch = userData.pin.toString() === pin.toString();
+        // Convert both PINs to strings and trim for comparison
+        const storedPin = userData.pin.toString().trim();
+        const providedPin = pin.toString().trim();
+        
+        console.log('PIN Verification:', {
+            userId,
+            storedPinLength: storedPin.length,
+            providedPinLength: providedPin.length
+        });
+        
+        const isMatch = storedPin === providedPin;
         console.log('PIN match:', isMatch);
         return isMatch;
     } catch (err) {
         console.error('Error verifying PIN:', err);
-        throw err;
+        return false;
     }
 }
 

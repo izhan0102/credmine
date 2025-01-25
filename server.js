@@ -153,12 +153,12 @@ app.post('/set-pin', async (req, res) => {
         
         const pin = req.body.pin;
         if (!pin || pin.length !== 4 || isNaN(pin)) {
-            return res.json({ success: false, message: 'Invalid PIN format' });
+            return res.json({ success: false, message: 'PIN must be exactly 4 digits' });
         }
         
         console.log('Setting PIN for user:', {
             userId: req.session.userId,
-            pin: pin
+            pinLength: pin.length
         });
         
         await setUserPin(req.session.userId, pin);
@@ -173,7 +173,10 @@ app.post('/set-pin', async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         console.error('Error in /set-pin:', err);
-        res.json({ success: false, message: err.message || 'Error setting PIN' });
+        res.json({ 
+            success: false, 
+            message: err.message || 'Error setting PIN. Please try again.' 
+        });
     }
 });
 
@@ -183,16 +186,31 @@ app.post('/verify-pin', async (req, res) => {
             return res.json({ success: false, message: 'Not authenticated' });
         }
         
+        const pin = req.body.pin;
+        if (!pin || pin.length !== 4 || isNaN(pin)) {
+            return res.json({ success: false, message: 'Invalid PIN format' });
+        }
+        
         console.log('Verifying PIN:', {
             userId: req.session.userId,
-            providedPin: req.body.pin
+            pinLength: pin.length
         });
         
-        const isValid = await verifyPin(req.session.userId, req.body.pin);
-        res.json({ success: isValid });
+        const isValid = await verifyPin(req.session.userId, pin);
+        if (!isValid) {
+            return res.json({ 
+                success: false, 
+                message: 'Incorrect PIN. Please try again.' 
+            });
+        }
+        
+        res.json({ success: true });
     } catch (err) {
         console.error('Error in /verify-pin:', err);
-        res.json({ success: false, message: 'Error verifying PIN' });
+        res.json({ 
+            success: false, 
+            message: 'Error verifying PIN. Please try again.' 
+        });
     }
 });
 
@@ -235,19 +253,6 @@ app.get('/logout', (req, res) => {
 // Add a new route for PIN setup page
 app.get('/setup-pin', requireAuth, (req, res) => {
     res.render('setup-pin');
-});
-
-// Add route to handle PIN setup
-app.post('/setup-pin', requireAuth, async (req, res) => {
-    try {
-        const { pin } = req.body;
-        const userRef = ref(rtdb, `users/${req.session.userId}`);
-        await set(userRef, { pin }, { merge: true });
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Error setting PIN:', err);
-        res.json({ success: false, message: 'Failed to set PIN' });
-    }
 });
 
 // Forgot password route
