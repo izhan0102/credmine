@@ -3,7 +3,7 @@ const path = require('path');
 const session = require('express-session');
 const { rtdb } = require('./config/firebase');
 const { ref, get, set, query, orderByChild, equalTo, push, update } = require('firebase/database');
-const { checkUsername, createUser, verifyUser, setUserPin, verifyPin, generateWalletAddress, getWalletAddress } = require('./database');
+const { checkUsername, createUser, verifyUser, generateWalletAddress, getWalletAddress } = require('./database');
 const { auth } = require('./config/firebase');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -145,88 +145,18 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-app.post('/set-pin', async (req, res) => {
-    try {
-        if (!req.session.userId) {
-            return res.json({ success: false, message: 'Not authenticated' });
-        }
-        
-        const pin = req.body.pin;
-        if (!pin || pin.length !== 4 || isNaN(pin)) {
-            return res.json({ success: false, message: 'PIN must be exactly 4 digits' });
-        }
-        
-        console.log('Setting PIN for user:', {
-            userId: req.session.userId,
-            pinLength: pin.length
-        });
-        
-        await setUserPin(req.session.userId, pin);
-        
-        // After setting PIN, verify it was set correctly
-        const isValid = await verifyPin(req.session.userId, pin);
-        if (!isValid) {
-            throw new Error('PIN verification failed after setting');
-        }
-        
-        console.log('PIN set and verified successfully');
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Error in /set-pin:', err);
-        res.json({ 
-            success: false, 
-            message: err.message || 'Error setting PIN. Please try again.' 
-        });
-    }
-});
-
-app.post('/verify-pin', async (req, res) => {
-    try {
-        if (!req.session.userId) {
-            return res.json({ success: false, message: 'Not authenticated' });
-        }
-        
-        const pin = req.body.pin;
-        if (!pin || pin.length !== 4 || isNaN(pin)) {
-            return res.json({ success: false, message: 'Invalid PIN format' });
-        }
-        
-        console.log('Verifying PIN:', {
-            userId: req.session.userId,
-            pinLength: pin.length
-        });
-        
-        const isValid = await verifyPin(req.session.userId, pin);
-        if (!isValid) {
-            return res.json({ 
-                success: false, 
-                message: 'Incorrect PIN. Please try again.' 
-            });
-        }
-        
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Error in /verify-pin:', err);
-        res.json({ 
-            success: false, 
-            message: 'Error verifying PIN. Please try again.' 
-        });
-    }
-});
-
 app.get('/dashboard', requireAuth, async (req, res) => {
     try {
         const userRef = ref(rtdb, `users/${req.session.userId}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         const walletAddress = userData.walletAddress;
-        const balance = userData.balance || 0; // Default to 0 for new users
+        const balance = userData.balance || 0;
 
         res.render('dashboard', {
             username: req.session.username,
             userId: req.session.userId,
             balance: balance,
-            pinVerified: false,
             walletAddress: walletAddress
         });
     } catch (err) {
@@ -248,11 +178,6 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
-});
-
-// Add a new route for PIN setup page
-app.get('/setup-pin', requireAuth, (req, res) => {
-    res.render('setup-pin');
 });
 
 // Forgot password route

@@ -63,78 +63,6 @@ async function verifyUser(email, password) {
     }
 }
 
-// Set user PIN
-async function setUserPin(userId, pin) {
-    try {
-        console.log('Setting PIN:', { userId, pin });
-        const cleanPin = pin.toString().trim();
-        
-        const userRef = ref(rtdb, `users/${userId}`);
-        const snapshot = await get(userRef);
-        
-        if (!snapshot.exists()) {
-            console.error('No user found with ID:', userId);
-            throw new Error('User not found');
-        }
-        
-        // Store PIN as string to ensure consistent format
-        await update(userRef, { pin: cleanPin });
-        console.log('PIN set successfully for user:', userId);
-        
-        // Verify the PIN was set correctly
-        const verifySnapshot = await get(userRef);
-        if (!verifySnapshot.exists() || verifySnapshot.val().pin !== cleanPin) {
-            throw new Error('PIN verification failed after setting');
-        }
-        
-        return true;
-    } catch (err) {
-        console.error('Error setting PIN:', err);
-        throw err;
-    }
-}
-
-// Verify user PIN
-async function verifyPin(userId, pin) {
-    try {
-        if (!userId || !pin) {
-            console.log('Missing userId or PIN');
-            return false;
-        }
-
-        const userRef = ref(rtdb, `users/${userId}`);
-        const snapshot = await get(userRef);
-        
-        if (!snapshot.exists()) {
-            console.log('User not found:', userId);
-            return false;
-        }
-        
-        const userData = snapshot.val();
-        if (!userData.pin) {
-            console.log('No PIN set for user');
-            return false;
-        }
-        
-        // Convert both PINs to strings and trim for comparison
-        const storedPin = userData.pin.toString().trim();
-        const providedPin = pin.toString().trim();
-        
-        console.log('PIN Verification:', {
-            userId,
-            storedPinLength: storedPin.length,
-            providedPinLength: providedPin.length
-        });
-        
-        const isMatch = storedPin === providedPin;
-        console.log('PIN match:', isMatch);
-        return isMatch;
-    } catch (err) {
-        console.error('Error verifying PIN:', err);
-        return false;
-    }
-}
-
 // Generate wallet address
 async function generateWalletAddress(userId) {
     try {
@@ -167,12 +95,11 @@ async function getWalletAddress(userId) {
     }
 }
 
+// Remove PIN-related functions and exports
 module.exports = {
     checkUsername,
     createUser,
     verifyUser,
-    setUserPin,
-    verifyPin,
     generateWalletAddress,
     getWalletAddress
 }; 

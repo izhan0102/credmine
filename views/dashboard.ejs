@@ -233,30 +233,10 @@
             font-size: 0.95rem;
         }
         .pin-input {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            margin-bottom: 2rem;
+            display: none;
         }
         .pin-input input {
-            width: 50px;
-            height: 60px;
-            border: 2px solid rgba(108, 99, 255, 0.2);
-            background: rgba(108, 99, 255, 0.05);
-            border-radius: 12px;
-            font-size: 1.5rem;
-            text-align: center;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-        }
-        .pin-input input:focus {
-            border-color: var(--primary-color);
-            background: rgba(108, 99, 255, 0.1);
-            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
-        }
-        .pin-input input:not(:placeholder-shown) {
-            border-color: var(--primary-color);
-            background: rgba(108, 99, 255, 0.1);
+            display: none;
         }
         .auth-button {
             background: linear-gradient(45deg, #6c63ff, #8983ff);
@@ -1056,21 +1036,6 @@
         </div>
     </div>
 
-    <div id="pinModal" class="modal">
-        <div class="modal-content">
-            <div class="security-icon">🔒</div>
-            <h2>Enter PIN</h2>
-            <p>Please enter your 4-digit PIN to access the dashboard</p>
-            <div class="pin-input">
-                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
-            </div>
-            <button class="auth-button" onclick="verifyPin()">Verify PIN</button>
-        </div>
-    </div>
-
     <div id="qrModal" class="qr-modal">
         <div class="qr-modal-content">
             <button class="qr-close" onclick="hideQRModal()">
@@ -1170,130 +1135,21 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         const dashboardContent = document.querySelector('.dashboard-content');
-        const pinModal = document.getElementById('pinModal');
         
-        // Always show PIN modal on page load, refresh, or focus
-        function showPinModal() {
-            pinModal.style.display = 'flex';
-            dashboardContent.classList.remove('visible');
-            const button = document.querySelector('.auth-button');
-            button.disabled = false;
-            button.textContent = 'Verify PIN';
-            button.style.background = 'linear-gradient(45deg, #6c63ff, #8983ff)';
-            pinInputs.forEach(input => {
-                input.value = '';
-                input.placeholder = '•';
-            });
-            pinInputs[0].focus();
-        }
-        
-        window.onload = function() {
-            if (shouldVerifyPin()) {
-                showPinModal();
-            }
-        };
-        
-        window.onfocus = function() {
-            if (shouldVerifyPin()) {
-                showPinModal();
-            }
-        };
-
-        // Detect tab/window changes
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                showPinModal();
-            }
-        });
-
-        // PIN input handling
-        const pinInputs = document.querySelectorAll('.pin-input input');
-        pinInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                if (e.target.value && index < pinInputs.length - 1) {
-                    pinInputs[index + 1].focus();
-                }
-                if (e.target.value) {
-                    input.placeholder = '•';
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    pinInputs[index - 1].focus();
-                }
-            });
-
-            input.addEventListener('focus', () => {
-                input.placeholder = '';
-            });
-
-            input.addEventListener('blur', () => {
-                if (!input.value) {
-                    input.placeholder = '•';
-                }
-            });
-        });
-
-        // Update PIN verification to be less sensitive
-        let pinVerified = false;
-        let lastPinVerification = 0;
-        const PIN_VERIFICATION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-
-        function shouldVerifyPin() {
-            const now = Date.now();
-            return !pinVerified || (now - lastPinVerification) > PIN_VERIFICATION_TIMEOUT;
-        }
-
-        async function verifyPin() {
-            const pin = Array.from(pinInputs).map(input => input.value).join('');
-            const button = document.querySelector('.auth-button');
-            button.textContent = 'Verifying...';
-            button.disabled = true;
-
-            try {
-                const response = await fetch('/verify-pin', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ pin })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    pinVerified = true;
-                    lastPinVerification = Date.now();
-                    button.textContent = 'Access Granted';
-                    button.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
-                    setTimeout(() => {
-                        pinModal.style.opacity = '0';
-                        setTimeout(() => {
-                            pinModal.style.display = 'none';
-                            pinModal.style.opacity = '1';
-                        }, 300);
-                    }, 500);
-                } else {
-                    button.textContent = 'Incorrect PIN';
-                    button.style.background = 'linear-gradient(45deg, #f44336, #e53935)';
-                    pinInputs.forEach(input => {
-                        input.value = '';
-                        input.placeholder = '•';
+        // Remove PIN modal and verification
+        function showTransfer() {
+            const scannerModal = document.getElementById('scannerModal');
+            scannerModal.style.display = 'flex';
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(() => {
+                        startScanner();
+                    })
+                    .catch(() => {
+                        document.getElementById('camera-permission').style.display = 'block';
+                        document.getElementById('scanner-container').style.display = 'none';
                     });
-                    pinInputs[0].focus();
-                    setTimeout(() => {
-                        button.disabled = false;
-                        button.textContent = 'Verify PIN';
-                        button.style.background = 'linear-gradient(45deg, #6c63ff, #8983ff)';
-                    }, 1000);
-                }
-            } catch (err) {
-                console.error('Error:', err);
-                button.textContent = 'Error';
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.textContent = 'Verify PIN';
-                }, 1000);
             }
         }
 
@@ -1392,37 +1248,6 @@
 
         let html5QrcodeScanner = null;
         let recipientAddress = null;
-
-        function showTransfer() {
-            if (shouldVerifyPin()) {
-                pinModal.style.display = 'flex';
-                return;
-            }
-            const scannerModal = document.getElementById('scannerModal');
-            scannerModal.style.display = 'flex';
-            
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(() => {
-                        startScanner();
-                    })
-                    .catch(() => {
-                        document.getElementById('camera-permission').style.display = 'block';
-                        document.getElementById('scanner-container').style.display = 'none';
-                    });
-            }
-        }
-
-        async function requestCamera() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('camera-permission').style.display = 'none';
-                document.getElementById('scanner-container').style.display = 'block';
-                startScanner();
-            } catch (err) {
-                alert('Could not access camera. Please check your camera permissions.');
-            }
-        }
 
         function startScanner() {
             html5QrcodeScanner = new Html5Qrcode("scanner-container");
