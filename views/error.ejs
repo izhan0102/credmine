@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - CredMine</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <svg width="32" height="32" viewBox="0 0 40 40">
+                    <path d="M20 0L40 20L20 40L0 20L20 0Z" fill="#f44336"/>
+                    <path d="M20 10L30 20L20 30L10 20L20 10Z" fill="#d32f2f"/>
+                </svg>
+                <h1>Error</h1>
+                <p><%= message %></p>
+            </div>
+
+            <a href="/login" class="auth-button">Back to Login</a>
+        </div>
+    </main>
+
+    <style>
+    .auth-button {
+        display: inline-block;
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(45deg, #6c63ff, #8983ff);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .auth-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    }
+    </style>
+</body>
+</html> 

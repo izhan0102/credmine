@@ -22,6 +22,13 @@
             <a href="/about">About</a>
             <a href="/privacy">Privacy Policy</a>
             <a href="/developer">Meet the Developer</a>
+            <% if (isLoggedIn) { %>
+                <a href="/dashboard" class="nav-auth">Dashboard</a>
+                <a href="/logout" class="nav-auth">Logout</a>
+            <% } else { %>
+                <a href="/login" class="nav-auth">Login</a>
+                <a href="/signup" class="nav-auth highlight">Sign Up</a>
+            <% } %>
         </div>
         <button class="mobile-menu-btn" onclick="toggleMenu()">
             <span></span>
@@ -32,6 +39,13 @@
             <a href="/about">About</a>
             <a href="/privacy">Privacy Policy</a>
             <a href="/developer">Meet the Developer</a>
+            <% if (isLoggedIn) { %>
+                <a href="/dashboard" class="highlight">Dashboard</a>
+                <a href="/logout">Logout</a>
+            <% } else { %>
+                <a href="/login">Login</a>
+                <a href="/signup" class="highlight">Sign Up</a>
+            <% } %>
         </div>
     </nav>
 
@@ -41,8 +55,12 @@
                 <h1>Earn Tokens with<br>Your Knowledge</h1>
                 <p>Complete quizzes, earn rewards, and build your token balance with our innovative reward system.</p>
                 <div class="auth-buttons">
-                    <button class="btn-secondary">Login</button>
-                    <button class="btn-primary">Sign Up</button>
+                    <% if (isLoggedIn) { %>
+                        <a href="/dashboard" class="btn-primary">Go to Dashboard</a>
+                    <% } else { %>
+                        <a href="/login" class="btn-secondary">Login</a>
+                        <a href="/signup" class="btn-primary">Sign Up</a>
+                    <% } %>
                 </div>
             </div>
 

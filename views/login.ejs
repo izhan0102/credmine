@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CredMine</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <svg width="32" height="32" viewBox="0 0 40 40">
+                    <path d="M20 0L40 20L20 40L0 20L20 0Z" fill="#6c63ff"/>
+                    <path d="M20 10L30 20L20 30L10 20L20 10Z" fill="#2d2b55"/>
+                </svg>
+                <h1>Welcome Back</h1>
+                <p>Enter your credentials to access your account</p>
+            </div>
+
+            <form id="loginForm" class="auth-form" action="/login" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required placeholder="Enter your password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="show">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hide">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="auth-button">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+            </div>
+        </div>
+    </main>
+
+    <div id="pinModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Your PIN</h2>
+            <p>Please enter your 4-digit PIN to access your account</p>
+            <div class="pin-input">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            </div>
+            <button class="auth-button" onclick="verifyPin()">Submit</button>
+        </div>
+    </div>
+
+    <style>
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1rem;
+    }
+
+    .forgot-password {
+        color: #6c63ff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .forgot-password:hover {
+        color: #8983ff;
+        text-decoration: underline;
+    }
+    </style>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.classList.add('showing');
+            } else {
+                input.type = 'password';
+                button.classList.remove('showing');
+            }
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('pinModal').style.display = 'flex';
+                } else {
+                    alert(data.message || 'Invalid credentials');
+                }
+            });
+        });
+
+        // PIN input handling
+        const pinInputs = document.querySelectorAll('.pin-input input');
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+        });
+
+        function verifyPin() {
+            const pin = Array.from(pinInputs).map(input => input.value).join('');
+            fetch('/verify-pin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pin })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    alert('Incorrect PIN. Please try again.');
+                    pinInputs.forEach(input => input.value = '');
+                    pinInputs[0].focus();
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

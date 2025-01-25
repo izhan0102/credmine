@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CredMine</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <svg width="32" height="32" viewBox="0 0 40 40">
+                    <path d="M20 0L40 20L20 40L0 20L20 0Z" fill="#6c63ff"/>
+                    <path d="M20 10L30 20L20 30L10 20L20 10Z" fill="#2d2b55"/>
+                </svg>
+                <h1>Create Account</h1>
+                <p>Enter your details to create a new account</p>
+            </div>
+
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="username-input">
+                        <input type="text" id="username" name="username" required placeholder="Choose a username">
+                        <span class="username-status"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required placeholder="Choose a password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="show">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hide">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-input">
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="show">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hide">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <small class="password-match"></small>
+                </div>
+
+                <button type="submit" class="auth-button">Sign Up</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/login">Login</a></p>
+            </div>
+        </div>
+    </main>
+
+    <div id="setPinModal" class="modal">
+        <div class="modal-content">
+            <h2>Set Your PIN</h2>
+            <p>Please set a 4-digit PIN to secure your account</p>
+            <div class="pin-input">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            </div>
+            <button class="auth-button" onclick="setPin()">Set PIN</button>
+        </div>
+    </div>
+
+    <script>
+        let usernameTimeout;
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.classList.add('showing');
+            } else {
+                input.type = 'password';
+                button.classList.remove('showing');
+            }
+        }
+
+        function checkUsername(value) {
+            clearTimeout(usernameTimeout);
+            const statusElement = document.querySelector('.username-status');
+            
+            if (value.length < 4) {
+                statusElement.textContent = 'Username must be at least 4 characters';
+                statusElement.className = 'username-status error';
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9]+$/.test(value)) {
+                statusElement.textContent = 'Only letters and numbers allowed';
+                statusElement.className = 'username-status error';
+                return;
+            }
+
+            statusElement.textContent = 'Checking availability...';
+            statusElement.className = 'username-status checking';
+
+            usernameTimeout = setTimeout(() => {
+                fetch('/check-username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: value + '@cred' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        statusElement.textContent = 'Username available';
+                        statusElement.className = 'username-status success';
+                    } else {
+                        statusElement.textContent = 'Username already taken';
+                        statusElement.className = 'username-status error';
+                    }
+                });
+            }, 500);
+        }
+
+        // Password match checking
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const matchElement = document.querySelector('.password-match');
+            
+            if (this.value === password) {
+                matchElement.textContent = 'Passwords match';
+                matchElement.className = 'password-match success';
+            } else {
+                matchElement.textContent = 'Passwords do not match';
+                matchElement.className = 'password-match error';
+            }
+        });
+
+        // Form submission
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (username.length < 4) {
+                alert('Username must be at least 4 characters');
+                return;
+            }
+
+            fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    username: username + '@cred',
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('setPinModal').style.display = 'flex';
+                } else {
+                    alert(data.message || 'Error creating account');
+                }
+            });
+        });
+
+        // PIN input handling
+        const pinInputs = document.querySelectorAll('.pin-input input');
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+        });
+
+        function setPin() {
+            const pin = Array.from(pinInputs).map(input => input.value).join('');
+            if (pin.length !== 4) {
+                alert('Please enter a 4-digit PIN');
+                return;
+            }
+
+            fetch('/set-pin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pin })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    alert('Error setting PIN. Please try again.');
+                }
+            });
+        }
+    </script>
+
+    <style>
+    .auth-divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 45%;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-divider::before {
+        left: 0;
+    }
+
+    .auth-divider::after {
+        right: 0;
+    }
+
+    .auth-divider span {
+        background-color: #1a1a1a;
+        padding: 0 15px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+    }
+
+    .google-auth-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background-color: transparent;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .google-auth-button:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .google-auth-button img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+    </style>
+</body>
+</html> 

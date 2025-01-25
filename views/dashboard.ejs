@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - CredMine</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #1e1e2d, #2d2b55);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .stat-card .value .currency {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .wallet-section {
+            background: linear-gradient(145deg, #2d2b55, #1e1e2d);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .wallet-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .address-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .address-value {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.9);
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: rgba(108, 99, 255, 0.2);
+            border: none;
+            color: #6c63ff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(108, 99, 255, 0.3);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wallet-section {
+                padding: 1.5rem;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dashboard-content {
+            opacity: 1 !important;
+            pointer-events: all !important;
+            transition: none !important;
+            filter: none !important;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2px 20px;
+            visibility: visible !important;
+        }
+        .dashboard-content.visible {
+            opacity: 1;
+            pointer-events: all;
+            filter: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-darker);
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(108, 99, 255, 0.2);
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            animation: modalAppear 0.3s ease;
+        }
+        @keyframes modalAppear {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .modal h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .pin-input {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .pin-input input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid rgba(108, 99, 255, 0.2);
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .pin-input input:focus {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        .pin-input input:not(:placeholder-shown) {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.1);
+        }
+        .auth-button {
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+        }
+        .auth-button:active {
+            transform: translateY(0);
+        }
+        .auth-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: buttonShine 2s infinite;
+        }
+        @keyframes buttonShine {
+            from {
+                transform: translateX(-100%) rotate(45deg);
+            }
+            to {
+                transform: translateX(100%) rotate(45deg);
+            }
+        }
+        .security-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Updated Wallet Styles */
+        .wallet-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            padding: 1rem;
+        }
+        
+        .wallet-section {
+            width: 100%;
+            margin: 0;
+            padding: 0.75rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: linear-gradient(180deg, rgba(108, 99, 255, 0.05) 0%, rgba(108, 99, 255, 0) 100%);
+        }
+
+        .wallet-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .wallet-balance {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .balance-label {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .balance-label::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background: #6c63ff;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .wallet-address-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .address-display {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+
+        .address-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .address-value {
+            flex: 1;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .copy-button {
+            background: transparent;
+            border: none;
+            color: #6c63ff;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .copy-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .generate-button {
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .generate-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        }
+
+        .wallet-buttons {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            justify-content: space-between;
+        }
+
+        .wallet-button {
+            background: var(--bg-dark);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            padding: 0.75rem 0.5rem;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .wallet-button .icon {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .wallet-button span {
+            font-weight: 500;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* Update main content padding to account for fixed header */
+        .page-content {
+            padding-top: calc(180px + 1rem); /* Adjust based on wallet container height */
+        }
+
+        @media (min-width: 768px) {
+            .wallet-container {
+                position: relative;
+                border-radius: 16px;
+                margin: 1rem auto;
+                max-width: 800px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+
+            .wallet-section {
+                padding: 2rem;
+            }
+
+            .wallet-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+            }
+
+            .wallet-balance {
+                text-align: left;
+            }
+
+            .balance-amount {
+                font-size: 2.5rem;
+            }
+
+            .wallet-buttons {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+
+            .wallet-button {
+                padding: 1.5rem;
+            }
+
+            .wallet-address-section {
+                margin: 2rem auto;
+                max-width: 800px;
+                padding: 2rem;
+            }
+        }
+
+        .floating-scan {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            color: white;
+            width: auto;
+            height: 48px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0 1.25rem;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            animation: glowButton 2s infinite;
+        }
+
+        @keyframes glowButton {
+            0% {
+                box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(108, 99, 255, 0.5);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            }
+        }
+
+        .floating-scan span {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .floating-scan svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        /* QR Code Modal Styles */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-modal-content {
+            background: var(--bg-darker);
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: modalAppear 0.3s ease;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-modal-content h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .qr-modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .qr-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .qr-close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .qr-code-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 0 auto 2rem;
+            display: inline-block;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-code-container img {
+            display: block;
+            width: 240px;
+            height: 240px;
+        }
+
+        .qr-address {
+            background: var(--bg-dark);
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-family: monospace;
+            color: var(--text-primary);
+            word-break: break-all;
+            font-size: 1rem;
+            border: 1px solid rgba(108, 99, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .wallet-container {
+                padding: 1rem;
+            }
+            
+            .wallet-section {
+                padding: 1.5rem;
+            }
+
+            .wallet-buttons {
+                grid-template-columns: 1fr;
+                padding: 0;
+            }
+
+            .wallet-button {
+                padding: 1.5rem;
+            }
+
+            .balance-amount {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Scanner Styles */
+        #scanner-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #000;
+        }
+
+        #qr-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scan-area {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #6c63ff;
+            border-radius: 12px;
+            position: relative;
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        /* Payment Modal Styles */
+        .payment-details {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .recipient-info, .balance-info, .amount-input {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .payment-details label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recipient-info #recipientName {
+            font-size: 1.25rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .available-balance {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.25rem;
+            color: #6c63ff;
+        }
+
+        #transferAmount {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: #fff;
+            font-size: 1.25rem;
+            font-family: 'Space Mono', monospace;
+            width: 100%;
+        }
+
+        #transferAmount:focus {
+            outline: none;
+            border-color: #6c63ff;
+        }
+
+        #payButton {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        #payButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .scan-options {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .manual-input-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .manual-input-section p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .address-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .address-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .proceed-btn {
+            background: linear-gradient(45deg, #6c63ff, #8983ff);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .proceed-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .proceed-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: white;
+        }
+
+        /* Transaction History Styles */
+        .transaction-history {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .transaction-type {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .transaction-user {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .transaction-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .transaction-amount {
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+        }
+
+        .transaction-amount.sent {
+            color: #ff6b6b;
+        }
+
+        .transaction-amount.received {
+            color: #51cf66;
+        }
+
+        #camera-permission {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        #camera-permission p {
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Balance refresh button */
+        .balance-refresh {
+            background: none;
+            border: none;
+            color: #6c63ff;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .balance-refresh:hover {
+            background: rgba(108, 99, 255, 0.1);
+            transform: rotate(180deg);
+        }
+
+        .balance-refresh svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .balance-refresh.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Available Balance</h3>
+                <div class="value">
+                    <span id="balanceValue"><%= balance %></span>
+                    <span class="currency">CRED</span>
+                    <button class="balance-refresh" onclick="refreshBalance()" title="Refresh balance">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 2v6h-6"></path>
+                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                            <path d="M3 22v-6h6"></path>
+                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="wallet-section">
+            <div class="wallet-header">
+                <h2 class="wallet-title">Wallet</h2>
+            </div>
+
+            <div class="address-section">
+                <div class="address-header">
+                    <h3>Your CRED Address</h3>
+                    <button class="copy-btn" onclick="copyAddress()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy
+                    </button>
+                </div>
+                <div class="address-value" id="walletAddress">
+                    <%= walletAddress || 'Generate your address' %>
+                </div>
+                <% if (!walletAddress) { %>
+                    <button onclick="generateAddress()" class="action-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M2 12h20"></path>
+                        </svg>
+                        Generate Address
+                    </button>
+                <% } %>
+            </div>
+
+            <div class="action-grid">
+                <button class="action-btn" onclick="showReceive()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Receive CRED
+                </button>
+                <button class="action-btn" onclick="showTransfer()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 9v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9"></path>
+                        <polyline points="7 14 12 9 17 14"></polyline>
+                        <line x1="12" y1="9" x2="12" y2="21"></line>
+                    </svg>
+                    Transfer CRED
+                </button>
+                <button class="action-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="20" x2="12" y2="10"></line>
+                        <line x1="18" y1="20" x2="18" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
+                    Transaction History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pinModal" class="modal">
+        <div class="modal-content">
+            <div class="security-icon">🔒</div>
+            <h2>Enter PIN</h2>
+            <p>Please enter your 4-digit PIN to access the dashboard</p>
+            <div class="pin-input">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="password" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            </div>
+            <button class="auth-button" onclick="verifyPin()">Verify PIN</button>
+        </div>
+    </div>
+
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-modal-content">
+            <button class="qr-close" onclick="hideQRModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2>Receive CRED</h2>
+            <p>Share your QR code to receive CRED tokens</p>
+            <div class="qr-code-container">
+                <div id="qrLoading">Generating QR Code...</div>
+                <img id="qrCode" src="" alt="QR Code" style="display: none;">
+            </div>
+            <div class="qr-address" id="fullAddress"></div>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="qr-modal">
+        <div class="qr-modal-content">
+            <button class="qr-close" onclick="hideScannerModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2>Send CRED</h2>
+            <p>Scan QR code or enter wallet address manually</p>
+            
+            <div class="scan-options">
+                <div id="scanner-section">
+                    <div id="camera-permission" style="display: none;">
+                        <p>Please allow camera access to scan QR codes</p>
+                        <button onclick="requestCamera()" class="auth-button">Enable Camera</button>
+                    </div>
+                    <div id="scanner-container">
+                        <video id="qr-video" playsinline></video>
+                        <div class="scanner-overlay">
+                            <div class="scan-area"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="manual-input-section">
+                    <p>Or enter wallet address manually:</p>
+                    <div class="address-input-container">
+                        <input type="text" id="manual-address" placeholder="Enter wallet address" class="address-input">
+                        <button onclick="processManualAddress()" class="proceed-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="qr-modal">
+        <div class="qr-modal-content">
+            <button class="qr-close" onclick="hidePaymentModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h2>Transfer CRED</h2>
+            <div class="payment-details">
+                <div class="recipient-info">
+                    <label>Recipient</label>
+                    <div id="recipientName">Loading...</div>
+                </div>
+                <div class="balance-info">
+                    <label>Your Balance</label>
+                    <div class="available-balance"><%= balance %> CRED</div>
+                </div>
+                <div class="amount-input">
+                    <label>Amount to Send</label>
+                    <input type="number" id="transferAmount" min="1" max="<%= balance %>" step="1" placeholder="Enter amount">
+                </div>
+            </div>
+            <button onclick="processTransfer()" class="auth-button" id="payButton">Send CRED</button>
+        </div>
+    </div>
+
+    <button class="floating-scan">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            <rect x="7" y="7" width="10" height="10"></rect>
+        </svg>
+        <span>Scan QR Code</span>
+    </button>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        const dashboardContent = document.querySelector('.dashboard-content');
+        const pinModal = document.getElementById('pinModal');
+        
+        // Always show PIN modal on page load, refresh, or focus
+        function showPinModal() {
+            pinModal.style.display = 'flex';
+            dashboardContent.classList.remove('visible');
+            const button = document.querySelector('.auth-button');
+            button.disabled = false;
+            button.textContent = 'Verify PIN';
+            button.style.background = 'linear-gradient(45deg, #6c63ff, #8983ff)';
+            pinInputs.forEach(input => {
+                input.value = '';
+                input.placeholder = '•';
+            });
+            pinInputs[0].focus();
+        }
+        
+        window.onload = function() {
+            if (shouldVerifyPin()) {
+                showPinModal();
+            }
+        };
+        
+        window.onfocus = function() {
+            if (shouldVerifyPin()) {
+                showPinModal();
+            }
+        };
+
+        // Detect tab/window changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                showPinModal();
+            }
+        });
+
+        // PIN input handling
+        const pinInputs = document.querySelectorAll('.pin-input input');
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+                if (e.target.value) {
+                    input.placeholder = '•';
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('focus', () => {
+                input.placeholder = '';
+            });
+
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    input.placeholder = '•';
+                }
+            });
+        });
+
+        // Update PIN verification to be less sensitive
+        let pinVerified = false;
+        let lastPinVerification = 0;
+        const PIN_VERIFICATION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+        function shouldVerifyPin() {
+            const now = Date.now();
+            return !pinVerified || (now - lastPinVerification) > PIN_VERIFICATION_TIMEOUT;
+        }
+
+        async function verifyPin() {
+            const pin = Array.from(pinInputs).map(input => input.value).join('');
+            const button = document.querySelector('.auth-button');
+            button.textContent = 'Verifying...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/verify-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    pinVerified = true;
+                    lastPinVerification = Date.now();
+                    button.textContent = 'Access Granted';
+                    button.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                    setTimeout(() => {
+                        pinModal.style.opacity = '0';
+                        setTimeout(() => {
+                            pinModal.style.display = 'none';
+                            pinModal.style.opacity = '1';
+                        }, 300);
+                    }, 500);
+                } else {
+                    button.textContent = 'Incorrect PIN';
+                    button.style.background = 'linear-gradient(45deg, #f44336, #e53935)';
+                    pinInputs.forEach(input => {
+                        input.value = '';
+                        input.placeholder = '•';
+                    });
+                    pinInputs[0].focus();
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.textContent = 'Verify PIN';
+                        button.style.background = 'linear-gradient(45deg, #6c63ff, #8983ff)';
+                    }, 1000);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                button.textContent = 'Error';
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = 'Verify PIN';
+                }, 1000);
+            }
+        }
+
+        let fullAddress = '<%= walletAddress %>';
+        const addressText = document.getElementById('walletAddress');
+        let isAddressVisible = false;
+
+        function toggleAddress() {
+            isAddressVisible = !isAddressVisible;
+            if (isAddressVisible) {
+                addressText.textContent = fullAddress;
+            } else {
+                addressText.textContent = fullAddress.substring(0, 4) + '•••••';
+            }
+        }
+
+        function copyAddress() {
+            const address = document.querySelector('.address-value').textContent;
+            navigator.clipboard.writeText(address)
+                .then(() => {
+                    const copyBtn = document.querySelector('.copy-btn');
+                    const originalContent = copyBtn.innerHTML;
+                    copyBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Copied!
+                    `;
+                    copyBtn.style.background = 'rgba(76, 175, 80, 0.2)';
+                    copyBtn.style.color = '#4CAF50';
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalContent;
+                        copyBtn.style.background = 'rgba(108, 99, 255, 0.2)';
+                        copyBtn.style.color = '#6c63ff';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Error copying address:', err);
+                    alert('Error copying address');
+                });
+        }
+
+        async function generateAddress() {
+            try {
+                const response = await fetch('/generate-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const addressDisplay = document.querySelector('.address-value');
+                    addressDisplay.textContent = data.address;
+                    document.querySelector('.wallet-address-section').style.display = 'block';
+                } else {
+                    alert('Error generating address');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error generating address');
+            }
+        }
+
+        function showReceive() {
+            if (!fullAddress) {
+                alert('Please generate an address first!');
+                return;
+            }
+            const qrModal = document.getElementById('qrModal');
+            const qrCode = document.getElementById('qrCode');
+            const qrLoading = document.getElementById('qrLoading');
+            const fullAddressElement = document.getElementById('fullAddress');
+            
+            qrModal.style.display = 'flex';
+            qrLoading.style.display = 'block';
+            qrCode.style.display = 'none';
+            fullAddressElement.textContent = fullAddress;
+
+            // Create new image and set up load handlers
+            const img = new Image();
+            img.onload = function() {
+                qrLoading.style.display = 'none';
+                qrCode.style.display = 'block';
+                qrCode.src = this.src;
+            };
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${fullAddress}`;
+        }
+
+        function hideQRModal() {
+            const qrModal = document.getElementById('qrModal');
+            qrModal.style.display = 'none';
+        }
+
+        let html5QrcodeScanner = null;
+        let recipientAddress = null;
+
+        function showTransfer() {
+            if (shouldVerifyPin()) {
+                pinModal.style.display = 'flex';
+                return;
+            }
+            const scannerModal = document.getElementById('scannerModal');
+            scannerModal.style.display = 'flex';
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(() => {
+                        startScanner();
+                    })
+                    .catch(() => {
+                        document.getElementById('camera-permission').style.display = 'block';
+                        document.getElementById('scanner-container').style.display = 'none';
+                    });
+            }
+        }
+
+        async function requestCamera() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('camera-permission').style.display = 'none';
+                document.getElementById('scanner-container').style.display = 'block';
+                startScanner();
+            } catch (err) {
+                alert('Could not access camera. Please check your camera permissions.');
+            }
+        }
+
+        function startScanner() {
+            html5QrcodeScanner = new Html5Qrcode("scanner-container");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 200, height: 200 }
+                },
+                onScanSuccess,
+                onScanError
+            );
+        }
+
+        async function onScanSuccess(decodedText) {
+            try {
+                // Stop scanning
+                if (html5QrcodeScanner) {
+                    await html5QrcodeScanner.stop();
+                }
+                
+                // Hide scanner modal first
+                hideScannerModal();
+                
+                // Store recipient address
+                recipientAddress = decodedText;
+
+                // Show payment modal
+                const paymentModal = document.getElementById('paymentModal');
+                const recipientNameElement = document.getElementById('recipientName');
+                const payButton = document.getElementById('payButton');
+                
+                paymentModal.style.display = 'flex';
+                recipientNameElement.textContent = 'Loading...';
+                payButton.disabled = true;
+
+                // Get recipient details
+                const response = await fetch('/get-user-by-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address: recipientAddress })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    recipientNameElement.textContent = data.username;
+                    payButton.disabled = false;
+                } else {
+                    recipientNameElement.textContent = 'User not found';
+                    payButton.disabled = true;
+                    alert('Invalid wallet address: User not found');
+                    setTimeout(() => {
+                        hidePaymentModal();
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                recipientNameElement.textContent = 'Error loading user';
+                payButton.disabled = true;
+                alert('Error loading user details. Please try again.');
+                setTimeout(() => {
+                    hidePaymentModal();
+                }, 2000);
+            }
+        }
+
+        function onScanError(error) {
+            // Handle scan error (optional)
+            console.warn(`QR scan error: ${error}`);
+        }
+
+        function hideScannerModal() {
+            const scannerModal = document.getElementById('scannerModal');
+            scannerModal.style.display = 'none';
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().catch(console.error);
+            }
+            document.getElementById('manual-address').value = '';
+        }
+
+        async function processManualAddress() {
+            const address = document.getElementById('manual-address').value.trim();
+            if (!address) {
+                alert('Please enter a wallet address');
+                return;
+            }
+            
+            // Hide scanner modal first
+            hideScannerModal();
+            
+            // Show payment modal and process the address
+            const paymentModal = document.getElementById('paymentModal');
+            const recipientNameElement = document.getElementById('recipientName');
+            const payButton = document.getElementById('payButton');
+            
+            paymentModal.style.display = 'flex';
+            recipientNameElement.textContent = 'Loading...';
+            payButton.disabled = true;
+
+            // Store recipient address globally
+            recipientAddress = address;
+
+            // Get recipient details
+            try {
+                const response = await fetch('/get-user-by-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address: recipientAddress })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    recipientNameElement.textContent = data.username;
+                    payButton.disabled = false;
+                } else {
+                    recipientNameElement.textContent = 'User not found';
+                    payButton.disabled = true;
+                    alert('Invalid wallet address: User not found');
+                    setTimeout(() => {
+                        hidePaymentModal();
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                recipientNameElement.textContent = 'Error loading user';
+                payButton.disabled = true;
+                alert('Error loading user details. Please try again.');
+                setTimeout(() => {
+                    hidePaymentModal();
+                }, 2000);
+            }
+        }
+
+        async function processTransfer() {
+            const amount = parseInt(document.getElementById('transferAmount').value);
+            const button = document.getElementById('payButton');
+            const recipientNameElement = document.getElementById('recipientName');
+            
+            if (!amount || amount <= 0 || amount > parseInt(document.getElementById('balanceValue').textContent)) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            if (recipientNameElement.textContent === 'User not found' || recipientNameElement.textContent === 'Error loading user') {
+                alert('Cannot transfer to invalid user');
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Processing...';
+
+            try {
+                const response = await fetch('/transfer-cred', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        recipientAddress,
+                        amount
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update balance in UI
+                    const balanceElements = document.querySelectorAll('#balanceValue, .available-balance');
+                    balanceElements.forEach(el => {
+                        el.textContent = data.newBalance;
+                    });
+                    
+                    // Show success message
+                    alert(data.message || 'Transfer successful!');
+                    hidePaymentModal();
+                    
+                    // Clear transfer amount
+                    document.getElementById('transferAmount').value = '';
+                    
+                    // Refresh transaction history
+                    loadTransactionHistory();
+                } else {
+                    alert(data.message || 'Transfer failed');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error processing transfer. Please try again.');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Send CRED';
+            }
+        }
+
+        function hidePaymentModal() {
+            const paymentModal = document.getElementById('paymentModal');
+            paymentModal.style.display = 'none';
+            document.getElementById('transferAmount').value = '';
+        }
+
+        // Update transfer button click handler
+        document.querySelector('.action-btn:nth-child(2)').onclick = showTransfer;
+
+        // Add function to load transaction history
+        async function loadTransactionHistory() {
+            try {
+                const response = await fetch('/get-transactions');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const transactionList = document.getElementById('transactionList');
+                    transactionList.innerHTML = '';
+                    
+                    data.transactions.forEach(transaction => {
+                        const isReceived = transaction.recipientId === '<%= userId %>';
+                        const transactionHtml = `
+                            <div class="transaction-item">
+                                <div class="transaction-details">
+                                    <span class="transaction-type">${isReceived ? 'Received from' : 'Sent to'}</span>
+                                    <span class="transaction-user">${isReceived ? transaction.senderUsername : transaction.recipientUsername}</span>
+                                    <span class="transaction-date">${new Date(transaction.timestamp).toLocaleString()}</span>
+                                </div>
+                                <div class="transaction-amount ${isReceived ? 'received' : 'sent'}">
+                                    ${isReceived ? '+' : '-'}${transaction.amount} CRED
+                                </div>
+                            </div>
+                        `;
+                        transactionList.innerHTML += transactionHtml;
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading transactions:', err);
+            }
+        }
+
+        // Load transaction history when dashboard is shown
+        document.addEventListener('DOMContentLoaded', loadTransactionHistory);
+
+        // Add function to handle floating scan button click
+        document.querySelector('.floating-scan').onclick = showTransfer;
+
+        // Add function to refresh balance
+        async function refreshBalance() {
+            const refreshBtn = document.querySelector('.balance-refresh');
+            refreshBtn.classList.add('spinning');
+            
+            try {
+                const response = await fetch('/get-balance');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update all balance displays
+                    const balanceElements = document.querySelectorAll('#balanceValue, .available-balance');
+                    balanceElements.forEach(el => {
+                        el.textContent = data.balance;
+                    });
+                }
+            } catch (err) {
+                console.error('Error refreshing balance:', err);
+            } finally {
+                refreshBtn.classList.remove('spinning');
+            }
+        }
+    </script>
+</body>
+</html> 

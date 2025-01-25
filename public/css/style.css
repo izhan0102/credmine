@@ -82,6 +82,21 @@ button {
     transform: scale(0.95);
 }
 
+.nav-links .nav-auth {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid transparent;
+}
+
+.nav-links .nav-auth.highlight {
+    background: var(--primary-color);
+    color: white;
+}
+
+.nav-links .nav-auth.highlight:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+}
+
 .auth-buttons {
     display: flex;
     gap: 1rem;
@@ -98,6 +113,9 @@ button {
     font-weight: 600;
     font-size: 0.9rem;
     transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-secondary:hover {
@@ -117,6 +135,10 @@ button {
     font-weight: 600;
     font-size: 0.9rem;
     transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-primary:hover {
@@ -373,6 +395,16 @@ button {
     transform: rotate(45deg) translate(-5px, -6px);
 }
 
+.mobile-menu a.highlight {
+    background: var(--primary-color);
+    color: white;
+}
+
+.mobile-menu a.highlight:hover {
+    background: var(--primary-color);
+    opacity: 0.9;
+}
+
 @media (max-width: 768px) {
     .nav-links {
         display: none;
@@ -420,6 +452,26 @@ button {
 
     .feature:active {
         transform: scale(0.98);
+    }
+
+    .mobile-menu a {
+        display: block;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 1rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .mobile-menu a:hover {
+        background: var(--card-bg);
+        color: var(--text-primary);
+    }
+
+    .mobile-menu a.highlight {
+        margin-top: 0.5rem;
     }
 }
 
